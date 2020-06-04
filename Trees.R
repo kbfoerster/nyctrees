@@ -644,5 +644,13 @@ for (i in 1:ncol(temp.dat)){
   print(freq(x))
 }
 
+############################################################
+## Adding original NTA_Names back to dataset
+############################################################
+nta = read.csv("nynta.csv") # https://data.cityofnewyork.us/City-Government/NTA-map/d3qk-pfyz
 
+# Getting relevant columns from NTA dataset
+nta = nta[,c("NTACode","NTAName")]
 
+# Merging our main dataset to the subsetted NTA dataset to get the original NTA names back
+data = merge(x=data, y=nta, by.x="nta", by.y="NTACode", all.x=T)

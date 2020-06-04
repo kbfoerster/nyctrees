@@ -1,13 +1,12 @@
 ############################################################
 ## Combining Kaggle Census Data
 ############################################################
-library(data.table)
+library(sqldf)
 
 setwd("D:/nyctrees")
 censusblock = read.csv("census_block_loc.csv")
 censustracts = read.csv("nyc_census_tracts.csv")
 data = read.csv("C:/users/foers/documents/NYCTrees/data.csv")
-nta = read.csv("nynta.csv") # https://data.cityofnewyork.us/City-Government/NTA-map/d3qk-pfyz
 
 # Merging census dataset based on converted tract / blockcode
 censusblock$tract = censusblock$BlockCode %/% 10000
@@ -20,12 +19,6 @@ unique(censusdata$Borough)
 # Dropping possibly irrelevant attributes in the census dataset
 dropvar = c("County.y","BlockCode","State","County.x","CensusTract")
 censusdata[,dropvar] = NULL
-
-# Getting only relevant columns from nta dataset
-nta = nta[,c("NTACode","NTAName")]
-
-# Merging our main dataset to the subsetted NTA dataset to get the original NTA names back
-data = merge(x=data, y=nta, by.x="nta", by.y="NTACode", all.x=T)
 
 
 
