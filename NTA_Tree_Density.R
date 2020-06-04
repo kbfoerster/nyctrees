@@ -35,6 +35,20 @@ tree_total <- trees15 %>% group_by(nta_name)%>% tally()
 tree_total <- as.data.frame(tree_total) #only has 188 NTA 
 tree_density <- left_join(tree_density, tree_total, by = c("NTA_small"= "nta_name"))
 
+#Need to creates species + latin columns again
+trees15$spc_latin = tolower(trees15$spc_latin)
+trees15$genus = sub(" .*", "", trees15$spc_latin)
+trees15$species = sub("\\S+", "", trees15$spc_latin)
+trees15$species = sub("x ", "", trees15$species)
+trees15$species = trimws(trees15$species, which="left")
+trees15$species = sub(" .*", "", trees15$species)
+
+trees15$species[trees15$species == "species" | trees15$species == "dead" | trees15$species == "unknown"] = ""
+trees15$genus[trees15$genus == "unknown"] = ""
+
+trees15$spc_latin = NULL
+trees15$spc_common = NULL
+
 #remove missing and NAs
 empty_as_na <- function(x){
   if("factor" %in% class(x)) x <- as.character(x) ## since ifelse wont work with factors
@@ -46,6 +60,12 @@ tree_density %>% summarise_all(funs(sum(is.na(.)))) #missing values
 
 names(tree_density)[names(tree_density) == "n"] = "Num_Trees"
 
+trees15$species = empty_as_na(trees15$species)
+trees15 = trees15 %>% drop_na(species)
+
+trees15$health = empty_as_na(trees15$health)
+trees15 = trees15 %>% drop_na(health)
+
 #calculate densities - small NTA (n = 188)
 tree_density$Trees_x_sq_mi = tree_density$Num_Trees / tree_density$area_sqmi
 tree_density$Trees_x_acre = tree_density$Num_Trees / tree_density$area_acre
@@ -56,3 +76,41 @@ tree_density_2 <- tree_density_2 %>% group_by(NTA_large)%>%  summarise_all(funs(
 
 tree_density_2$Trees_x_sq_mi = tree_density_2$Num_Trees / tree_density_2$area_sqmi
 tree_density_2$Trees_x_acre = tree_density_2$Num_Trees / tree_density_2$area_acre
+
+#calculate different species in a space
+listing_species = trees15%>% group_by(nta_name,species) %>% tally()
+total_species = listing_species%>% group_by(nta_name) %>% tally()
+names(total_species)[names(total_species) == "n"] = "Num_Species"
+
+tree_density = merge(tree_density, total_species, by.y = "nta_name", by.x="NTA_small")
+
+tree_density$Species_x_sq_mi = tree_density$Num_Species / tree_density$area_sqmi
+tree_density$Species_x_acre = tree_density$Num_Species / tree_density$area_acre
+
+# Calculate Tree Health (Avg. health in a space)
+listing_health = trees15 %>% group_by(nta_name, health) %>% tally()
+temp = trees15
+
+temp$health[trees15$health == "Poor"] = 1
+temp$health[trees15$health == "Fair"] = 2
+temp$health[trees15$health == "Good"] = 3
+temp$health = as.numeric(temp$health)
+
+average_health = temp[,c("health","nta_name")] %>% group_by(nta_name)
+average_health = average_health %>% summarise(avg_health = mean(health))
+
+tree_density = merge(tree_density, average_health, by.x="NTA_small", by.y="nta_name")
+
+# Calculate sidewalk variables
+listing_sidewalk = trees15 %>% group_by(nta_name,sidewalk) %>% tally()
+temp = trees15
+temp$sidewalk = as.character(temp$sidewalk)
+
+temp$sidewalk[trees15$sidewalk == "Damage"] = 1
+temp$sidewalk[trees15$sidewalk == "NoDamage"] = 0
+temp$sidewalk = as.numeric(temp$sidewalk)
+
+average_sidewalk = temp[,c("sidewalk","nta_name")] %>% group_by(nta_name)
+average_sidewalk = average_sidewalk %>% summarise(avg_sidewalk = mean(sidewalk))
+
+tree_density = merge(tree_density, average_sidewalk, by.x="NTA_small", by.y="nta_name")
