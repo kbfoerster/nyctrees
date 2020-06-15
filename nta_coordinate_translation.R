@@ -1,7 +1,12 @@
 ############################################################
 ## Combining Kaggle Census Data
 ############################################################
-library(sqldf)
+library(dplyr)
+library(proj4)
+library(sf)
+library(sp)
+library(rgeos)
+library(rgdal)
 
 setwd("D:/nyctrees")
 censusblock = read.csv("census_block_loc.csv")
@@ -38,138 +43,20 @@ for (i in unique(data$NTAName)) {
 }
 
 
-# Creating an ID column to temporarily track columns easily from pre-merge to post-merge
-tempcensus = censusdata
-tempcensus$ID <- seq.int(nrow(tempcensus))
+##### Using Water Data Method
+nta_borders <- read_sf("geo_export_42a67cd3-33d5-483c-8cde-559f7911439c.shp")
+nta_census <- st_as_sf(censusdata, coords = c('Longitude', 'Latitude'), crs = st_crs(nta_borders)) #creates geometry coordinates with lat/long
 
-# SQLDF to do an inner join on datasets and left join to verify differences
-innertest = sqldf("select * from tempcensus df1 inner join geotrans df2
-             on (df1.Latitude >= df2.latmin and df1.Latitude <= df2.latmax and 
-             df1.Longitude >= df2.longmin and df1.Longitude <= df2.longmax) ")
+census_points <- nta_census %>% mutate(
+  intersection = as.integer(st_intersects(geometry, nta_borders))
+  , area = if_else(is.na(intersection), '', nta_borders$ntaname[intersection])
+) 
 
-lefttest = sqldf("select * from tempcensus df1 left join geotrans df2
-             on (df1.Latitude >= df2.latmin and df1.Latitude <= df2.latmax and 
-             df1.Longitude >= df2.longmin and df1.Longitude <= df2.longmax) ")
-
-# Can see the NAs are inconsistent between pre- and post- merge
-sapply(tempcensus, function(x) sum(is.na(x)))
-sapply(innertest, function(x) sum(is.na(x)))
-sapply(lefttest, function(x) sum(is.na(x)))
-# Looking at a single entry, it's matched to multiple NTA Names and gets an additional entry
-innertest[innertest$ID == 8408,]
-lefttest[lefttest$ID == 8408,]
-
-# Can see that the inner join has less of the original entries than the left-join
-# Missing out on possible data by doing inner join
-summary(tempcensus$ID)
-summary(innertest$ID)
-summary(lefttest$ID)
-
-####### To-Do
-#### Find reliable way to remove duplicates
-
-##### Failed Partition and Merge
-
-# partition <- createDataPartition(data$boroname, p = .5, list = FALSE, times = 1)
-# dataA = data[partition,]
-# dataB = data[-partition,]
-# 
-# partitionA = createDataPartition(dataA$boroname, p = .5, list = FALSE, times = 1)
-# dataA_1 = dataA[partitionA,]
-# dataA_2 = dataA[-partitionA,]
-# partitionB = createDataPartition(dataB$boroname, p = .5, list = FALSE, times = 1)
-# dataB_1 = dataB[partitionB,]
-# dataB_2 = dataB[-partitionB,]
-# 
-# partitionA_1 = createDataPartition(dataA_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionA_2 = createDataPartition(dataA_2$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_1 = createDataPartition(dataB_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_2 = createDataPartition(dataB_2$boroname, p = .5, list = FALSE, times = 1)
-# dataA_1_1 = dataA_1[partitionA_1,]
-# dataA_1_2 = dataA_1[-partitionA_1,]
-# dataA_2_1 = dataA_2[partitionA_2,]
-# dataA_2_2 = dataA_2[-partitionA_2,]
-# dataB_1_1 = dataB_1[partitionB_1,]
-# dataB_1_2 = dataB_1[-partitionB_1,]
-# dataB_2_1 = dataB_2[partitionB_2,]
-# dataB_2_2 = dataB_2[-partitionB_2,]
-# 
-# 
-# 
-# partitionA_1_1 = createDataPartition(dataA_1_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionA_1_2 = createDataPartition(dataA_1_2$boroname, p = .5, list = FALSE, times = 1)
-# partitionA_2_1 = createDataPartition(dataA_2_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionA_2_2 = createDataPartition(dataA_2_2$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_1_1 = createDataPartition(dataB_1_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_1_2 = createDataPartition(dataB_1_2$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_2_1 = createDataPartition(dataB_2_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_2_2 = createDataPartition(dataB_2_2$boroname, p = .5, list = FALSE, times = 1)
-# dataA_1_1_1 = dataA_1_1[partitionA_1_1,]
-# dataA_1_1_2 = dataA_1_1[-partitionA_1_1,]
-# dataA_1_2_1 = dataA_1_2[partitionA_1_2,]
-# dataA_1_2_2 = dataA_1_2[-partitionA_1_2,]
-# dataA_2_1_1 = dataA_2_1[partitionA_1_1,]
-# dataA_2_1_2 = dataA_2_1[-partitionA_1_1,]
-# dataA_2_2_1 = dataA_2_2[partitionA_1_1,]
-# dataA_2_2_2 = dataA_2_2[-partitionA_1_1,]
-# dataB_1_1_1 = dataB_1_1[partitionB_1_1,]
-# dataB_1_1_2 = dataB_1_1[-partitionB_1_1,]
-# dataB_1_2_1 = dataB_1_2[partitionB_1_2,]
-# dataB_1_2_2 = dataB_1_2[-partitionB_1_2,]
-# dataB_2_1_1 = dataB_2_1[partitionB_1_1,]
-# dataB_2_1_2 = dataB_2_1[-partitionB_1_1,]
-# dataB_2_2_1 = dataB_2_2[partitionB_1_1,]
-# dataB_2_2_2 = dataB_2_2[-partitionB_1_1,]
-# 
-# partitionA_1_1_1 = createDataPartition(dataA_1_1_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionA_1_1_2 = createDataPartition(dataA_1_1_2$boroname, p = .5, list = FALSE, times = 1)
-# partitionA_1_2_1 = createDataPartition(dataA_1_2_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionA_1_2_2 = createDataPartition(dataA_1_2_2$boroname, p = .5, list = FALSE, times = 1)
-# partitionA_2_1_1 = createDataPartition(dataA_2_1_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionA_2_1_2 = createDataPartition(dataA_2_1_2$boroname, p = .5, list = FALSE, times = 1)
-# partitionA_2_2_1 = createDataPartition(dataA_2_2_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionA_2_2_2 = createDataPartition(dataA_2_2_2$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_1_1_1 = createDataPartition(dataB_1_1_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_1_1_2 = createDataPartition(dataB_1_1_2$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_1_2_1 = createDataPartition(dataB_1_2_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_1_2_2 = createDataPartition(dataB_1_2_2$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_2_1_1 = createDataPartition(dataB_2_1_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_2_1_2 = createDataPartition(dataB_2_1_2$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_2_2_1 = createDataPartition(dataB_2_2_1$boroname, p = .5, list = FALSE, times = 1)
-# partitionB_2_2_2 = createDataPartition(dataB_2_2_2$boroname, p = .5, list = FALSE, times = 1)
-# dataA_1_1_1_1 = dataA_1_1_1[partitionA_1_1_1,]
-# dataA_1_1_1_2 = dataA_1_1_1[-partitionA_1_1_1,]
-# dataA_1_1_2_1 = dataA_1_1_2[partitionA_1_1_2,]
-# dataA_1_1_2_2 = dataA_1_1_2[-partitionA_1_1_2,]
-# dataA_1_2_1_1 = dataA_1_2_1[partitionA_1_2_1,]
-# dataA_1_2_1_2 = dataA_1_2_1[-partitionA_1_2_1,]
-# dataA_1_2_2_1 = dataA_1_2_2[partitionA_1_2_2,]
-# dataA_1_2_2_2 = dataA_1_2_2[-partitionA_1_2_2,]
-# dataA_2_1_1_1 = dataA_2_1_1[partitionA_2_1_1,]
-# dataA_2_1_1_2 = dataA_2_1_1[-partitionA_2_1_1,]
-# dataA_2_1_2_1 = dataA_2_1_2[partitionA_2_1_2,]
-# dataA_2_1_2_2 = dataA_2_1_2[-partitionA_2_1_2,]
-# dataA_2_2_1_1 = dataA_2_2_1[partitionA_2_2_1,]
-# dataA_2_2_1_2 = dataA_2_2_1[-partitionA_2_2_1,]
-# dataA_2_2_2_1 = dataA_2_2_2[partitionA_2_2_2,]
-# dataA_2_2_2_2 = dataA_2_2_2[-partitionA_2_2_2,]
-# dataB_1_1_1_1 = dataB_1_1_1[partitionB_1_1_1,]
-# dataB_1_1_1_2 = dataB_1_1_1[-partitionB_1_1_1,]
-# dataB_1_1_2_1 = dataB_1_1_2[partitionB_1_1_2,]
-# dataB_1_1_2_2 = dataB_1_1_2[-partitionB_1_1_2,]
-# dataB_1_2_1_1 = dataB_1_2_1[partitionB_1_2_1,]
-# dataB_1_2_1_2 = dataB_1_2_1[-partitionB_1_2_1,]
-# dataB_1_2_2_1 = dataB_1_2_2[partitionB_1_2_2,]
-# dataB_1_2_2_2 = dataB_1_2_2[-partitionB_1_2_2,]
-# dataB_2_1_1_1 = dataB_2_1_1[partitionB_2_1_1,]
-# dataB_2_1_1_2 = dataB_2_1_1[-partitionB_2_1_1,]
-# dataB_2_1_2_1 = dataB_2_1_2[partitionB_2_1_2,]
-# dataB_2_1_2_2 = dataB_2_1_2[-partitionB_2_1_2,]
-# dataB_2_2_1_1 = dataB_2_2_1[partitionB_2_2_1,]
-# dataB_2_2_1_2 = dataB_2_2_1[-partitionB_2_2_1,]
-# dataB_2_2_2_1 = dataB_2_2_2[partitionB_2_2_2,]
-# dataB_2_2_2_2 = dataB_2_2_2[-partitionB_2_2_2,]
-# 
-# 
-# 
-# temp = merge(x=censusdata, y=dataA_1_1_1_1, by.x="Borough", by.y="boroname", all.y=T)
+#### Mapping NTA Neighborhoods for EPA Pollution Data
+epa_dat = read.csv("NO2_Pollutants_Full.csv")
+epa_dat = epa_dat[complete.cases(epa_dat),]
+epa_nta = st_as_sf(epa_dat, coords = c('SITE_LONGITUDE', 'SITE_LATITUDE'), crs = st_crs(nta_borders)) #creates geometry coordinates with lat/long
+epa  <- epa_nta %>% mutate(
+  intersection = as.integer(st_intersects(geometry, nta_borders))
+  , area = if_else(is.na(intersection), '', nta_borders$ntaname[intersection])
+) 
