@@ -695,15 +695,39 @@ water_points <- water_points_sf %>% mutate(
 #### Merging New Census Data ####
 censusblock = read.csv("census_block_loc.csv")
 censustracts = read.csv("nyc_census_tracts.csv") # Main source of missing data to follow
-nta_borders <- read_sf("geo_export_42a67cd3-33d5-483c-8cde-559f7911439c.shp")
+nta_borders = read_sf("geo_export_42a67cd3-33d5-483c-8cde-559f7911439c.shp")
 censusblock$tract = censusblock$BlockCode %/% 10000
+
+
+# https://www.kaggle.com/bigironsphere/tutorial-maps-eda-and-models-with-nyc-census-data#1-Introduction
+censustracts = censustracts[!is.na(censustracts$ChildPoverty), ]
+
+
+mod_col_by_group = function(df, groupcol, modcol, f, colname='NewCol', replace=F){
+  gcol = enquo(groupcol)
+  mcol = enquo(modcol)
+  mod_df = df %>% group_by(!!gcol) %>% summarise(NewCol = f(!!mcol))
+  df = merge(df, mod_df, all.x = T) %>% rename_(.dots = setNames('NewCol', colname))
+  if(!replace){return(df)}else{
+    df = df %>% select(-!!mcol)
+  }
+}
+
+censusblock = mod_col_by_group(censusblock, tract, Latitude, mean, 'LatMean', replace=T)
+censusblock = mod_col_by_group(censusblock, tract, Longitude, mean, 'LongMean', replace=T)
+censusblock = unique(censusblock)
+
 censusdata = merge(x=censustracts, y=censusblock, by.x="CensusTract", by.y="tract")
+
+sum(!complete.cases(censusdata))
+
+
 
 # Dropping possibly irrelevant attributes in the census dataset
 dropvar = c("County.y","BlockCode","State","County.x","CensusTract")
 censusdata[,dropvar] = NULL
 
-nta_census <- st_as_sf(censusdata, coords = c('Longitude', 'Latitude'), crs = st_crs(nta_borders))
+nta_census <- st_as_sf(censusdata, coords = c('LongMean', 'LatMean'), crs = st_crs(nta_borders))
 
 census_points <- nta_census %>% mutate(
   intersection = as.integer(st_intersects(geometry, nta_borders))
@@ -711,11 +735,11 @@ census_points <- nta_census %>% mutate(
 ) 
 
 # Aggregating census by nta for merge
-census_agg = aggregate(x=census_points[, !names(census_points) %in% c("area","geometry","intersection")], by=list(census_points$area), FUN=mean)
+census_agg = aggregate(x=census_points[, !names(census_points) %in% c("area","geometry","intersection","Borough")], by=list(census_points$area), FUN=mean)
+census_agg[,"geometry"] = NULL
 
 # Merging on aggregating census data
 data = merge(x=data, y=census_agg, by.x="ntaname_full", by.y="Group.1", all.x=T)
-data[,"geometry"] = NULL
 
 
 #### Merging Pollution Data ####
