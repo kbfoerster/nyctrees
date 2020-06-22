@@ -1,3 +1,4 @@
+#### Initial Setup ####
 library(dplyr)
 library(NCmisc)
 library(scales)
@@ -681,8 +682,6 @@ final_water_data<- final_water_data[complete.cases(final_water_data), ]
 #map nta borders from shapefile: https://github.com/r-spatial/sf
 
 nta_borders <- read_sf("geo_export_88ad1373-87ea-43b9-bd79-81a0201cc84f.shp")
-print(nta_borders)
-plot(nta_borders)
 
 #classify nta by lat/long coordinates
 water_points_sf <- st_as_sf(final_water_data, coords = c('lon', 'lat'), crs = st_crs(nta_borders)) #creates geometry coordinates with lat/long
@@ -695,7 +694,7 @@ water_points <- water_points_sf %>% mutate(
 
 #### Merging New Census Data ####
 censusblock = read.csv("census_block_loc.csv")
-censustracts = read.csv("nyc_census_tracts.csv")
+censustracts = read.csv("nyc_census_tracts.csv") # Main source of missing data to follow
 nta_borders <- read_sf("geo_export_42a67cd3-33d5-483c-8cde-559f7911439c.shp")
 censusblock$tract = censusblock$BlockCode %/% 10000
 censusdata = merge(x=censustracts, y=censusblock, by.x="CensusTract", by.y="tract")
@@ -704,7 +703,7 @@ censusdata = merge(x=censustracts, y=censusblock, by.x="CensusTract", by.y="trac
 dropvar = c("County.y","BlockCode","State","County.x","CensusTract")
 censusdata[,dropvar] = NULL
 
-nta_census <- st_as_sf(censusdata, coords = c('Longitude', 'Latitude'), crs = st_crs(nta_borders)) #creates geometry coordinates with lat/long
+nta_census <- st_as_sf(censusdata, coords = c('Longitude', 'Latitude'), crs = st_crs(nta_borders))
 
 census_points <- nta_census %>% mutate(
   intersection = as.integer(st_intersects(geometry, nta_borders))
@@ -716,11 +715,13 @@ census_agg = aggregate(x=census_points[, !names(census_points) %in% c("area","ge
 
 # Merging on aggregating census data
 data = merge(x=data, y=census_agg, by.x="ntaname_full", by.y="Group.1", all.x=T)
+data[,"geometry"] = NULL
+
 
 #### Merging Pollution Data ####
 epa_dat = read.csv("NO2_Pollutants_Full.csv")
 epa_dat = epa_dat[complete.cases(epa_dat),]
-epa_nta = st_as_sf(epa_dat, coords = c('SITE_LONGITUDE', 'SITE_LATITUDE'), crs = st_crs(nta_borders)) #creates geometry coordinates with lat/long
+epa_nta = st_as_sf(epa_dat, coords = c('SITE_LONGITUDE', 'SITE_LATITUDE'), crs = st_crs(nta_borders))
 epa  <- epa_nta %>% mutate(
   intersection = as.integer(st_intersects(geometry, nta_borders))
   , area = if_else(is.na(intersection), '', nta_borders$ntaname[intersection])
