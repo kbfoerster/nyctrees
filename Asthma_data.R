@@ -4,8 +4,6 @@
 
 rm(list=ls())
 
-library(dplyr)
-library(stringr)
 library(readxl)
 
 asthma = read_excel("Asthma_data.xlsx")
@@ -15,4 +13,4 @@ for (i in 1:nrow(ntatranslation)){
   asthma$Geography[asthma$Geography == ntatranslation$Raw_NTA[i]] = ntatranslation$NTA[i]
 } 
 
-
+write.csv(asthma, "asthma_by_NTA.csv")
