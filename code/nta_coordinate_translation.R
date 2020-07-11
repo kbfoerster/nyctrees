@@ -7,11 +7,11 @@ library(sf)
 library(sp)
 library(rgeos)
 library(rgdal)
+library(here)
 
-setwd("D:/nyctrees")
-censusblock = read.csv("census_block_loc.csv")
-censustracts = read.csv("nyc_census_tracts.csv")
-data = read.csv("C:/users/foers/documents/NYCTrees/data.csv")
+censusblock = read.csv(here("data","census_block_loc.csv"))
+censustracts = read.csv(here("data","nyc_census_tracts.csv"))
+data = read.csv(here("data","data.csv"))
 
 # Merging census dataset based on converted tract / blockcode
 censusblock$tract = censusblock$BlockCode %/% 10000
@@ -44,7 +44,7 @@ for (i in unique(data$NTAName)) {
 
 
 ##### Using Water Data Method
-nta_borders <- read_sf("geo_export_42a67cd3-33d5-483c-8cde-559f7911439c.shp")
+nta_borders <- read_sf(here("data","geo_export_42a67cd3-33d5-483c-8cde-559f7911439c.shp"))
 nta_census <- st_as_sf(censusdata, coords = c('Longitude', 'Latitude'), crs = st_crs(nta_borders)) #creates geometry coordinates with lat/long
 
 census_points <- nta_census %>% mutate(
@@ -53,7 +53,7 @@ census_points <- nta_census %>% mutate(
 ) 
 
 #### Mapping NTA Neighborhoods for EPA Pollution Data
-epa_dat = read.csv("NO2_Pollutants_Full.csv")
+epa_dat = read.csv(here("data","NO2_Pollutants_Full.csv"))
 epa_dat = epa_dat[complete.cases(epa_dat),]
 epa_nta = st_as_sf(epa_dat, coords = c('SITE_LONGITUDE', 'SITE_LATITUDE'), crs = st_crs(nta_borders)) #creates geometry coordinates with lat/long
 epa  <- epa_nta %>% mutate(

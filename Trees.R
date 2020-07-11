@@ -20,17 +20,18 @@ library(sf)
 library(sp)
 library(rgeos)
 library(rgdal)
+library(here)
 
-trees05 = read.csv("2005_Street_Tree_Census.csv")
-trees15 = read.csv("2015StreetTreesCensus_TREES.csv")
-ntatranslation = read.csv("NTA_Name Translation.csv", colClasses = "character")
-demo = read.csv("Combined-CoreData_NYC.csv")
+trees05 = read.csv(here("data","2005_Street_Tree_Census.csv"))
+trees15 = read.csv(here("data","2015StreetTreesCensus_TREES.csv"))
+ntatranslation = read.csv(here("data","NTA_Name Translation.csv"), colClasses = "character")
+demo = read.csv(here("data","Combined-CoreData_NYC.csv"))
 
 names(demo)[names(demo) == "Sub.Borough.Area"] = "nta_name"
 names(demo)[names(demo) == "Density_.2015"] = "Density_2015"
 
-#### Looking at boronames that are similar between Trees Censi (Censuses?) ####
-
+#### Data Standardizing ####
+### Looking at boronames that are similar between Trees Censi ###
 temp15 = unique(trees15[!(trees15$nta_name %in% trees05$nta_name),])
 unique(temp15$nta_name)
 # Only names in '15 that aren't in '05 are misspelled below:
@@ -40,7 +41,7 @@ unique(temp15$nta_name)
 # Breezy Point-Belle Harbor-Rockaway Park-Broad Chan -> Breezy Point-Belle Harbor-Rockaway Park-Broad Channel
 
 
-#### Selecting Relevant Columns, fixing column names, adding dataset year, and combining Trees ####
+### Selecting Relevant Columns, fixing column names, adding dataset year, and combining Trees ###
 
 #creating a new column in 2015 data that combines health and status to match the data in 2005 
 trees15$status <- as.character(trees15$status)
@@ -66,7 +67,7 @@ trees15$year = 2015
 trees = rbind(trees05, trees15)
 
 
-#### Standardizing nta_name ####
+### Standardizing nta_name ###
 
 
 trees$nta_name = as.character(trees$nta_name)
@@ -81,7 +82,7 @@ for (i in 1:nrow(ntatranslation)){
 
 data = merge(trees, demo, by="nta_name")
 
-#### Prepping data... ####
+### Fixing Demographic Data after Merge ###
 
 dups <- data[duplicated(data),] #NOTE: keep duplicates - no duplicates in raw datasets based on tree IDs!
 nrow(dups)
@@ -105,6 +106,8 @@ cate_vars <- c('boro_ct', 'borocode', 'st_assem', 'st_senate', 'zip_city', 'year
                'cncldist', 'inf_guard', 'inf_shoes', 'nta', 'sidw_crack', 'spc_common', 'spc_latin', 
                'healthstatus', 'zipcode') 
 
+### Adding Consistency to data ###
+
 # Standardizing 'inf_guard'
 data$inf_guard[data$inf_guard == "Harmful" | data$inf_guard == "Helpful" | data$inf_guard == "Unsure"] = "Yes"
 data$inf_guard[data$inf_guard == "None"] = "No"
@@ -127,7 +130,7 @@ data$genus[data$genus == "unknown"] = ""
 data$spc_latin = NULL
 data$spc_common = NULL
 
-#### N sizes and missing values ####
+#### Initial EDA Of Data ####
 
 empty_as_na <- function(x){
   if("factor" %in% class(x)) x <- as.character(x) ## since ifelse wont work with factors
@@ -139,7 +142,7 @@ data %>% summarise_all(funs(sum(!is.na(.)))) #non-na n size of each column
 data %>% summarise_all(funs(sum(is.na(.)))) #missing values
 
 
-#### Numerical Variables summaries ####
+### Numerical Variables summaries ###
 
 data$population <- as.numeric(data$population)
 data$tree_dbh <- as.numeric(data$tree_dbh)
@@ -192,7 +195,7 @@ ggplot(df.m, aes(x=variable, y=value, color=variable)) +
   labs(x="Attributes", fill="Attributes") +
   theme(axis.text.x = element_text(angle = 90))
 
-#### Categorical Variables summaries ####
+### Categorical Variables summaries ###
 
 #recode variable types as factors
 data$boro_ct <- as.factor(data$boro_ct)
@@ -218,7 +221,7 @@ for (i in 1:ncol(catdata)){
 }
 
 
-#### Missingness evaluation ####
+### Missingness evaluation ###
 
 zip_t <- unique(data[c(18, 19)]) #extract just zipcde and zip_city 
 data$zipcode[data$zipcode == 0] <- NA
@@ -277,7 +280,7 @@ chisq.test(table)
 
 
 
-#### Outlier evaluation ####
+### Outlier evaluation ###
 
 # Boxplot for tree_dbh attribute
 ggplot(data, aes(x= "",y=tree_dbh)) + geom_boxplot() + labs(x="tree_dbh", y="Value") + ggtitle("Boxplot for tree_dbh Attribute")
@@ -286,7 +289,7 @@ ggplot(data, aes(x= "",y=tree_dbh)) + geom_boxplot() + labs(x="tree_dbh", y="Val
 data = data[!data$tree_dbh == -1,]
 data = data[data$tree_dbh < (3*sd(data$tree_dbh)),] #removes 69683 outliers above 3 sd
 
-#### Modality Analysis ####
+### Modality Analysis ###
 
 num_data = data[,num_vars]
 
@@ -459,14 +462,8 @@ nrow(final_data) == nrow(data) #should be true
 final_data %>% summarise_all(funs(sum(is.na(.)))) #no missing values
 mvp2 <- final_data %>% missing_plot() #missing values map  - updated
 
-#### final data set ####
 
-## After KNN imputation
-#write.csv(final_data, "trees_final_data.csv")
-
-
-
-#### Week 11 Feedback ####
+#### EDA Of Data Post-Imputation Compared to Pre-Imputation ####
 
 `%ni%` <- Negate(`%in%`)
 temp.fact = c("boro_ct","borocode","cncldist","st_assem","st_senate","zipcode","year")
@@ -493,7 +490,7 @@ cut.data.num = cut.data[,num_vars]
 cut.data.cat = subset(cut.data,select = names(cut.data) %ni% num_vars)
 
 
-#### Categorical Exploration ####
+### Categorical Exploration ###
 
 # Looking at general structure of categorical variables after imputation - all looks good
 old.data.cat[,temp.fact] = lapply(old.data.cat[,temp.fact], factor)
@@ -507,7 +504,7 @@ zipcode = old.data.cat[old.data.cat$zipcode == 0,]
 
 old.data.cat$species[old.data.cat$species %ni% data.cat$species]
 
-#### Skewness ####
+### Skewness ###
 
 # Transforming categorical variables into integers and calculating skewness
 # Comparing raw and cut data
@@ -537,7 +534,7 @@ skew.data.cat$species = skewness(sort(cut.data.cat$species))
 do.call(rbind, Map(data.frame, Old=skew.old.data.cat, New=skew.data.cat))
 
 
-#### Multicollinearity ####
+### Multicollinearity ###
 
 # Creating a correlation plot for transformed categorical variables for possible multicollinearity
 # Looking at final data
@@ -545,11 +542,11 @@ cor_all = cor(data.trans, use = "pairwise.complete.obs", method = "pearson")
 ggcorrplot(cor_all, method = "circle", type = "upper", lab = FALSE)
 
 
-#### Numerical Exploration ####
+### Numerical Exploration ###
 
 
 
-#### Skewness ####
+### Skewness ###
 
 # Looking at the skewness of numerical variables
 # raw data and cut data
@@ -564,7 +561,7 @@ do.call(rbind, Map(data.frame, Old=skew.old.data, New=skew.data))
 
 
 
-#### Modality ####
+### Modality ###
 
 # Looking at modlity of numerical variables
 # raw data and cut data
@@ -585,7 +582,7 @@ mod.test.data = lapply(data.num, dip.test)
 
 
 
-#### After Imputation ####
+### After Imputation ###
 
 # Looking at skewness and modality for imputed data
 # Comparing final data to cut data
@@ -607,7 +604,7 @@ data.trans[col.name] = sapply(data.trans[col.name], as.integer)
 skew.data.trans = lapply(data.trans, skewness)
 skew.data.trans
 
-#### Looking at statistics for categorical ####
+### Looking at statistics for categorical ###
 
 
 #recode variable types as factors
@@ -645,9 +642,9 @@ for (i in 1:ncol(temp.dat)){
 }
 
 
-#### Adding original NTA_Names back to dataset ####
+#### Merging Multiple Datasets ####
 
-nta = read.csv("nynta.csv") # https://data.cityofnewyork.us/City-Government/NTA-map/d3qk-pfyz
+nta = read.csv(here("data","nynta.csv")) # https://data.cityofnewyork.us/City-Government/NTA-map/d3qk-pfyz
 
 # Getting relevant columns from NTA dataset
 nta = nta[,c("NTACode","NTAName")]
@@ -657,12 +654,12 @@ data = merge(x=data, y=nta, by.x="nta", by.y="NTACode", all.x=T)
 names(data)[names(data) == "NTAName"] = "ntaname_full"
 
 
-#### Merging Water Data ####
+### Merging Water Data ###
 
 
 #read in water-related data files
-water_data <- read.csv("Drinking_Water_Quality_Distribution_Monitoring_Data.csv", header = TRUE)
-site_index <- read.csv("Distribution_Water_Quality_Sampling_Sites_for_OpenData.csv", header = TRUE)
+water_data <- read.csv(here("data","Drinking_Water_Quality_Distribution_Monitoring_Data.csv"), header = TRUE)
+site_index <- read.csv(here("data","Distribution_Water_Quality_Sampling_Sites_for_OpenData.csv"), header = TRUE)
 water_data_2 <- left_join(water_data, site_index, by = c("Sample.Site"= "ï..Site"))
 
 water_data_2$ID <- seq.int(nrow(water_data_2))
@@ -681,7 +678,7 @@ final_water_data<- final_water_data[complete.cases(final_water_data), ]
 
 #map nta borders from shapefile: https://github.com/r-spatial/sf
 
-nta_borders <- read_sf("geo_export_88ad1373-87ea-43b9-bd79-81a0201cc84f.shp")
+nta_borders <- read_sf(here("data","geo_export_88ad1373-87ea-43b9-bd79-81a0201cc84f.shp"))
 
 #classify nta by lat/long coordinates
 water_points_sf <- st_as_sf(final_water_data, coords = c('lon', 'lat'), crs = st_crs(nta_borders)) #creates geometry coordinates with lat/long
@@ -692,10 +689,10 @@ water_points <- water_points_sf %>% mutate(
 ) 
 
 
-#### Merging New Census Data ####
-censusblock = read.csv("census_block_loc.csv")
-censustracts = read.csv("nyc_census_tracts.csv") # Main source of missing data to follow
-nta_borders = read_sf("geo_export_42a67cd3-33d5-483c-8cde-559f7911439c.shp")
+### Merging New Census Data ###
+censusblock = read.csv(here("data","census_block_loc.csv"))
+censustracts = read.csv(here("data","nyc_census_tracts.csv")) # Main source of missing data to follow
+nta_borders = read_sf(here("data","geo_export_42a67cd3-33d5-483c-8cde-559f7911439c.shp"))
 censusblock$tract = censusblock$BlockCode %/% 10000
 
 
@@ -742,7 +739,7 @@ census_agg[,"geometry"] = NULL
 data = merge(x=data, y=census_agg, by.x="ntaname_full", by.y="Group.1", all.x=T)
 
 
-#### Merging Pollution Data ####
+### Merging Pollution Data ###
 epa_dat = read.csv("NO2_Pollutants_Full.csv")
 epa_dat = epa_dat[complete.cases(epa_dat),]
 epa_nta = st_as_sf(epa_dat, coords = c('SITE_LONGITUDE', 'SITE_LATITUDE'), crs = st_crs(nta_borders))
