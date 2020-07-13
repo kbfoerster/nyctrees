@@ -66,20 +66,12 @@ rf = randomForest(healthstatus ~., train)
 
 bor = Boruta(healthstatus ~., train, doTrace = 2)
 
-plot(bor, xlab = "", xaxt = "n", main = "NYCTrees Data Feature Importance")
+boruta_plot(bor, main_title = "NYCTrees Healthstatus Feature Importance", save_plot = T)
 
-lz<-lapply(1:ncol(bor$ImpHistory),function(i)
-  
-  bor$ImpHistory[is.finite(bor$ImpHistory[,i]),i])
 
-names(lz) <- colnames(bor$ImpHistory)
-
-Labels <- sort(sapply(lz,median))
-
-axis(side = 1,las=2,labels = names(Labels),
-     
-     at = 1:ncol(bor$ImpHistory), cex.axis = 0.7)
-
+#### tree_dbh Boruta ####
+bor = Boruta(tree_dbh ~., train, doTrace = 2)
+boruta_plot(bor, main_title = "Boruta tree_dbh Feature Importance", save_plot = T)
 
 #### Agg Boruta ####
 agg_data = read.csv(here("data","Joined_aggregate_data.csv"))
@@ -89,37 +81,13 @@ agg_train = agg_data[complete.cases(agg_data),]
 ### Looking at number of trees against aggregate variables
 agg_bor = Boruta(Num_Trees ~., agg_train, doTrace = 2)
 agg_bor = TentativeRoughFix(agg_bor)
-plot(agg_bor, xlab = "", xaxt = "n", main = "Aggregated Data Feature Importance")
 
-lz<-lapply(1:ncol(agg_bor$ImpHistory),function(i)
-  
-  agg_bor$ImpHistory[is.finite(agg_bor$ImpHistory[,i]),i])
-
-names(lz) <- colnames(agg_bor$ImpHistory)
-
-Labels <- sort(sapply(lz,median))
-
-axis(side = 1,las=2,labels = names(Labels),
-     
-     at = 1:ncol(agg_bor$ImpHistory), cex.axis = 0.7)
+boruta_plot(agg_bor, main_title = "Aggregated Data Feature Importance", save_plot = T)
 
 ### Looking at Income against aggregate variables
 agg_income = Boruta(Income ~., agg_train, doTrace = 2)
 agg_income = TentativeRoughFix(agg_income)
 boruta_plot(agg_income, main_title = "Aggregated Data Income Feature Importance", save_plot = T)
-plot(agg_income, xlab = "", xaxt = "n", main = "Aggregated Data Income Feature Importance")
-
-lz<-lapply(1:ncol(agg_income$ImpHistory),function(i)
-  
-  agg_income$ImpHistory[is.finite(agg_income$ImpHistory[,i]),i])
-
-names(lz) <- colnames(agg_income$ImpHistory)
-
-Labels <- sort(sapply(lz,median))
-
-axis(side = 1,las=2,labels = names(Labels),
-     
-     at = 1:ncol(agg_income$ImpHistory), cex.axis = 0.7)
 
 ### Looking at Professional against aggregate variables
 agg_prof = Boruta(Professional ~., agg_train, doTrace=2)
