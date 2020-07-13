@@ -71,8 +71,9 @@ boruta_plot(bor, main_title = "NYCTrees Healthstatus Feature Importance", save_p
 
 #### tree_dbh Boruta ####
 bor = Boruta(tree_dbh ~., train, doTrace = 2)
+fixed_bor = TentativeRoughFix(bor)
 boruta_plot(bor, main_title = "Boruta tree_dbh Feature Importance", save_plot = T)
-
+boruta_plot(fixed_bor, main_title = "Boruta tree_dbh Feature Importance", save_plot = T)
 #### Agg Boruta ####
 agg_data = read.csv(here("data","Joined_aggregate_data.csv"))
 agg_data[c("Borough","X.1","X.x","X.y","X")] = NULL
