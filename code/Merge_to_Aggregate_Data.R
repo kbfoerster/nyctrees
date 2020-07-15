@@ -10,6 +10,11 @@ census_agg <- read.csv(here("data","census_agg.csv"))
 air_pollutants <- read.csv(here("data","NO2_Pollutants_nta.csv"))
 water_pollutants <- read.csv(here("data","water_by_nta.csv"))
 
+tree_density[,"X"] = NULL
+asthma[,"X"] = NULL
+air_pollutants[,"X"] = NULL
+
+
 ####merge data####
 tree_density$NTA_small <- tolower(gsub("-", " ", tree_density$NTA_small))
 census_agg$Group.1 <- tolower(gsub("-", " ", census_agg$Group.1))

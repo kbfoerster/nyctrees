@@ -6,7 +6,7 @@ library(here)
 water_data <- read.csv(here("data","Drinking_Water_Quality_Distribution_Monitoring_Data.csv"), header = TRUE)
 site_index <- read.csv(here("data","Distribution_Water_Quality_Sampling_Sites_for_OpenData.csv"), header = TRUE)
 
-water_data_2 <- left_join(water_data, site_index, by = c("Sample.Site"= "Ã¯..Site"))
+water_data_2 <- left_join(water_data, site_index, by = c("Sample.Site"= "ï..Site"))
 water_data_2$ID <- seq.int(nrow(water_data_2))
 
 #convert x/y to lat/long: https://gis.stackexchange.com/questions/325497/error-in-converting-xy-coordinates-to-lat-long-using-r-proj4-library
@@ -25,7 +25,7 @@ final_water_data<- final_water_data[complete.cases(final_water_data), ]
 #map nta borders from shapefile: https://github.com/r-spatial/sf
 library(sf)
 
-nta_borders <- read_sf(here("data","geo_export_88ad1373-87ea-43b9-bd79-81a0201cc84f.shp"))
+nta_borders <- read_sf(here("data","geo_export_42a67cd3-33d5-483c-8cde-559f7911439c.shp"))
 print(nta_borders)
 plot(nta_borders)
 
@@ -37,6 +37,10 @@ water_points <- water_points_sf %>% mutate(
   , area = if_else(is.na(intersection), '', nta_borders$ntaname[intersection])
 ) 
 
-water_points 
+head(water_points)
+water_points[,c("X","ID","geometry")] = NULL
+write.csv(water_points, here("data","water_by_nta.csv"), row.names = F)
 
-write.csv(water_points, here("data","water_by_nta.csv"))
+
+
+
