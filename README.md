@@ -5,6 +5,10 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
 
 ### Data Collection and Cleaning
 - [Tree census data](Trees.R)
+- [Tree Density metrics](Code/Tree_Density_by_NTA.ipynb)
+- [Asthma Hospitalization data](Code/Asthma_data.R)
+- [Water quality data](Code/Water_data.R)
+- [Creating aggregate data set by NTA level](Code/Merge_to_Aggregate_Data.R)
 
 ### Data Exploration
 
