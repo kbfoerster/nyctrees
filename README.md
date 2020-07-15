@@ -3,9 +3,8 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
 
 ## Outline
 
-### Data Collection
-
-### Data Cleaning
+### Data Collection and Cleaning
+- [Tree census data](Trees.R)
 
 ### Data Exploration
 
