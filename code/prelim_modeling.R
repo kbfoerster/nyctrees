@@ -124,3 +124,56 @@ Ecoli_bor = Boruta(E.coli.Quanti.Tray...MPN.100mL. ~., wtr_data, doTrace=2)
 Ecoli_bor = TentativeRoughFix(Ecoli_bor)
 boruta_plot(Ecoli_bor, main_title = "Aggregated Water Data E.Coli Feature Importance", save_plot = T)
 saveRDS(Ecoli_bor, here("models","boruta_e_coli_variable_importance.rds"))
+
+#### PCA ####
+library(factoextra)
+library(FactoMineR)
+### Looking at main data
+pca_data = data
+pca_data$inf_guard = ifelse(pca_data$inf_guard == "Yes", 1, 0)
+pca_data$inf_shoes = ifelse(pca_data$inf_shoes == "Yes", 1, 0)
+pca_data$sidw_crack = ifelse(pca_data$sidw_crack == "Yes", 1, 0)
+pca_data$healthstatus = ifelse(pca_data$healthstatus == "Good" | pca_data$healthstatus == "Alive", 1, 0)
+pca_data = pca_data[,unlist(lapply(pca_data, is.numeric))]
+pca_data = pca_data[complete.cases(pca_data),]
+### Running PCA on pca_data
+pca_data_mod = prcomp(pca_data, scale = TRUE)
+
+eig = (pca_data_mod$sdev)^2
+variance = eig*100/sum(eig)
+cumvar = cumsum(variance)
+
+eig.dat = data.frame(eig = eig, variance = variance, cumvariance = cumvar)
+eig.dat
+
+fviz_pca_var(pca_data_mod, col.var="contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE      # Avoid text overlapping
+)
+
+### Running PCA on wtr_data
+pca_wtr_data = wtr_data
+pca_wtr_data[,c("Location","Sample.Date","Sample.Site","area","NTA_large","Sample.Time")] = NULL
+pca_wtr_data$Residual.Free.Chlorine..mg.L. = as.numeric(pca_wtr_data$Residual.Free.Chlorine..mg.L.)
+pca_wtr_data$Turbidity..NTU. = as.numeric(pca_wtr_data$Turbidity..NTU.)
+pca_wtr_data$Fluoride..mg.L. = as.numeric(pca_wtr_data$Fluoride..mg.L.)
+pca_wtr_data$Coliform..Quanti.Tray...MPN..100mL. = as.numeric(pca_wtr_data$Coliform..Quanti.Tray...MPN..100mL.)
+pca_wtr_data$E.coli.Quanti.Tray...MPN.100mL. = as.numeric(pca_wtr_data$E.coli.Quanti.Tray...MPN.100mL.)
+pca_wtr_data$Hosp_5.17_Avg_yr_Num = as.numeric(pca_wtr_data$Hosp_5.17_Avg_yr_Num)
+pca_wtr_data$Hosp_5.17_Avg_Yr_Rate_per_10K = as.numeric(pca_wtr_data$Hops_Adults_Avg_Yr_Rate_per_10K_adj)
+
+pca_wtr_data_mod = prcomp(pca_wtr_data, scale = TRUE)
+
+eig = (pca_data_mod$sdev)^2
+variance = eig*100/sum(eig)
+cumvar = cumsum(variance)
+
+wtr_eig.dat = data.frame(eig = eig, variance = variance, cumvariance = cumvar)
+wtr_eig.dat
+
+fviz_pca_var(pca_wtr_data_mod, col.var="contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE      # Avoid text overlapping
+)
+
+### Running PCA on general aggregate data
