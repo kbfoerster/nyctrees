@@ -110,5 +110,17 @@ saveRDS(trees_x_bor, here("models","boruta_trees_x_sq_mi_variable_importance.rds
 ### Looking at Fluoride..mg.L.
 fluor_bor = Boruta(Fluoride..mg.L. ~., wtr_data, doTrace = 2)
 fluor_bor = TentativeRoughFix(fluor_bor)
-boruta_plot(fluor_bor, main_title = "Water Data Fluoride Feature Importance", save_plot = T)
+boruta_plot(fluor_bor, main_title = "Aggregated Water Data Fluoride Feature Importance", save_plot = T)
 saveRDS(fluor_bor, here("models","boruta_fluoride_variable_importance.rds"))
+
+### Looking at Coliform..Quanti.Tray...MPN..100mL.
+coli_bor = Boruta(Coliform..Quanti.Tray...MPN..100mL. ~., wtr_data, doTrace=2)
+coli_bor = TentativeRoughFix(coli_bor)
+boruta_plot(coli_bor, main_title = "Aggregated Water Data Coliform Feature Importance", save_plot = T)
+saveRDS(coli_bor, here("models","boruta_coliform_variable_importance.rds"))
+
+### Looking at Coliform..Quanti.Tray...MPN..100mL.
+Ecoli_bor = Boruta(E.coli.Quanti.Tray...MPN.100mL. ~., wtr_data, doTrace=2)
+Ecoli_bor = TentativeRoughFix(Ecoli_bor)
+boruta_plot(Ecoli_bor, main_title = "Aggregated Water Data E.Coli Feature Importance", save_plot = T)
+saveRDS(Ecoli_bor, here("models","boruta_e_coli_variable_importance.rds"))
