@@ -69,11 +69,12 @@ bor = Boruta(healthstatus ~., train, doTrace = 2)
 boruta_plot(bor, main_title = "NYCTrees Healthstatus Feature Importance", save_plot = T)
 
 
-#### tree_dbh Boruta ####
+### tree_dbh Boruta
 bor = Boruta(tree_dbh ~., train, doTrace = 2)
 fixed_bor = TentativeRoughFix(bor)
 boruta_plot(bor, main_title = "Boruta tree_dbh Feature Importance", save_plot = T)
 boruta_plot(fixed_bor, main_title = "Boruta tree_dbh Feature Importance", save_plot = T)
+
 #### Agg Boruta ####
 agg_data = read.csv(here("data","Joined_aggregate_data.csv"))
 agg_data[c("Borough","X.1","X.x","X.y","X")] = NULL
@@ -94,3 +95,20 @@ boruta_plot(agg_income, main_title = "Aggregated Data Income Feature Importance"
 agg_prof = Boruta(Professional ~., agg_train, doTrace=2)
 agg_prof = TentativeRoughFix(agg_prof)
 boruta_plot(agg_prof, main_title = "Aggregated Data Professional Feature Importance", save_plot = T)
+
+#### Water agg_data ####
+wtr_data = read.csv(here("data","Joined_aggregate_water_data.csv"))
+wtr_data[,c("ID","X...Coordinate.y","Y...Coordinate.y","geometry","Borough","X.1","X","intersection")] = NULL
+wtr_data = wtr_data[complete.cases(wtr_data),]
+
+### Looking at Trees_x_sq_mi
+trees_x_bor = Boruta(Trees_x_sq_mi ~., wtr_data, doTrace = 2)
+trees_x_bor = TentativeRoughFix(trees_x_bor)
+boruta_plot(trees_x_bor, main_title = "Water Data Trees_x_sq_mi Feature Importance", save_plot = T)
+saveRDS(trees_x_bor, here("models","boruta_trees_x_sq_mi_variable_importance.rds"))
+
+### Looking at Fluoride..mg.L.
+fluor_bor = Boruta(Fluoride..mg.L. ~., wtr_data, doTrace = 2)
+fluor_bor = TentativeRoughFix(fluor_bor)
+boruta_plot(fluor_bor, main_title = "Water Data Fluoride Feature Importance", save_plot = T)
+saveRDS(fluor_bor, here("models","boruta_fluoride_variable_importance.rds"))
