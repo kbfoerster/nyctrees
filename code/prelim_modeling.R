@@ -146,10 +146,13 @@ cumvar = cumsum(variance)
 eig.dat = data.frame(eig = eig, variance = variance, cumvariance = cumvar)
 eig.dat
 
+png(here("plots", "Raw Data PCA.png"), width = 465, height = 225, units='mm', res = 300)
 fviz_pca_var(pca_data_mod, col.var="contrib",
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
-             repel = TRUE      # Avoid text overlapping
+             repel = TRUE,      # Avoid text overlapping
+             title = "Raw Data PCA"
 )
+dev.off()
 
 ### Running PCA on wtr_data
 pca_wtr_data = wtr_data
@@ -171,9 +174,33 @@ cumvar = cumsum(variance)
 wtr_eig.dat = data.frame(eig = eig, variance = variance, cumvariance = cumvar)
 wtr_eig.dat
 
+png(here("plots", "Water Data PCA.png"), width = 465, height = 225, units='mm', res = 300)
 fviz_pca_var(pca_wtr_data_mod, col.var="contrib",
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
-             repel = TRUE      # Avoid text overlapping
+             repel = TRUE, # Avoid text overlapping
+             title = "Water Data PCA"
 )
+dev.off()
 
 ### Running PCA on general aggregate data
+pca_agg = agg_train
+pca_agg[,c("NTA_large","NTA_small")] = NULL
+pca_agg$Hosp_5.17_Avg_yr_Num=as.numeric(pca_agg$Hosp_5.17_Avg_yr_Num)
+pca_agg$Hosp_5.17_Avg_Yr_Rate_per_10K = as.numeric(pca_agg$Hosp_5.17_Avg_Yr_Rate_per_10K)
+
+pca_agg_mod = prcomp(pca_agg, scale = TRUE)
+
+eig = (pca_data_mod$sdev)^2
+variance = eig*100/sum(eig)
+cumvar = cumsum(variance)
+
+agg_eig.dat = data.frame(eig = eig, variance = variance, cumvariance = cumvar)
+agg_eig.dat
+
+png(here("plots", "Aggregated Data PCA.png"), width = 465, height = 225, units='mm', res = 300)
+fviz_pca_var(pca_agg_mod, col.var="contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE,      # Avoid text overlapping,
+             title = "Aggregated Data PCA"
+)
+dev.off()
