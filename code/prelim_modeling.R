@@ -84,7 +84,7 @@ agg_train = agg_data[complete.cases(agg_data),]
 agg_bor = Boruta(Num_Trees ~., agg_train, doTrace = 2)
 agg_bor = TentativeRoughFix(agg_bor)
 
-boruta_plot(agg_bor, main_title = "Aggregated Data Feature Importance", save_plot = T)
+boruta_plot(agg_bor, main_title = "Aggregated Data Num_Trees Feature Importance", save_plot = T)
 
 ### Looking at Income against aggregate variables
 agg_income = Boruta(Income ~., agg_train, doTrace = 2)
