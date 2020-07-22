@@ -12,6 +12,7 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
 
 ### Data Exploration
 - [Feature Importance via PCA and Boruta](code/prelim_modeling.R)
+- [Aggregate Data Correlations, Clustering, and Decision Trees](code/Aggregate_Data_Exploration.R)
 
 ### Data Analyses
 - Supervised methods
