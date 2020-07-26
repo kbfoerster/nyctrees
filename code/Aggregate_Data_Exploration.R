@@ -1,14 +1,9 @@
 #Aggregated data set - data exploration
 
 ####Correlation####
-agg_data <- read.csv(here("data","Joined_aggregate_data.csv"))
-air_data <- read.csv(here("data","Joined_aggregate_air_data.csv"))
-water_data <- read.csv(here("data","Joined_aggregate_water_data.csv"))
-
 library(corrplot)
 library(RColorBrewer)
-#devtools::install_github("laresbernardo/lares") #https://www.rdocumentation.org/packages/lares/versions/4.7
-library(lares)
+library(lares) #devtools::install_github("laresbernardo/lares"): https://www.rdocumentation.org/packages/lares/versions/4.7
 
 nums <- unlist(lapply(agg_data, is.numeric))  
 M<-cor(agg_data[ , nums], use = "pairwise.complete.obs")
@@ -24,7 +19,7 @@ corr_cross(agg_data,
 #top correlations with tree density
 corr_var(agg_data, 
          Trees_x_sq_mi, 
-         top = 25 
+         top = 50 
 ) 
 
 #top correlations with water - chlorine
@@ -43,6 +38,12 @@ corr_var(water_data,
 corr_var(air_data, 
          Daily.Max.1.hour.NO2.Concentration, 
          top = 25 
+) 
+
+#top correlations with asthma
+corr_var(agg_data, 
+         Hosp_Adults_Avg_Yr_Num, 
+         top = 50 
 ) 
 
 agg_data$Hosp_5.17_Avg_Yr_Rate_per_10K
@@ -67,7 +68,7 @@ library(factoextra)
 seg.summ <- function(data, groups) {
   aggregate(data, list(groups), function(x) mean(as.numeric(x)))
 }
-
+#1
 #nums <- unlist(lapply(agg_data, is.numeric))  
 #data_num <- agg_data[ , nums]
 data_num <- agg_data[, c("Trees_x_sq_mi", "SelfEmployed", "MeanCommute", "Drive", "Carpool", "IncomePerCap", "PrivateWork")]
@@ -78,5 +79,83 @@ str(data_num)
 
 seg.k <- kmeans(data_num, centers=4, iter.max = 10)
 seg.summ(data_num, seg.k$cluster)
-p3 <- fviz_cluster(seg.k, geom = "point",  data = data_num) + ggtitle("k = 4")
+p4 <- fviz_cluster(seg.k, geom = "point",  data = data_num) + ggtitle("k = 4")
+
+#2
+#nums <- unlist(lapply(agg_data, is.numeric))  
+#data_num <- agg_data[ , nums]
+data_num <- agg_data[, c("Trees_x_sq_mi", "SelfEmployed", "MeanCommute", "Drive", "Carpool", "IncomePerCap", "PrivateWork", "Hosp_Adults_Avg_Yr_Num", "Poverty", "Professional", "Unemployment")]
+data_num[complete.cases(data_num), ]
+data_num <- na.omit(data_num)
+data_num <- scale(data_num)
+str(data_num)
+
+seg.k <- kmeans(data_num, centers=6, iter.max = 10)
+seg.summ(data_num, seg.k$cluster)
+p3 <- fviz_cluster(seg.k, geom = "point",  data = data_num) + ggtitle("k = 6")
+
+#####MLR - best subsets####
+library(dplyr)
+library(tidyr)
+
+empty_as_na <- function(x){
+  if("factor" %in% class(x)) x <- as.character(x) ## since ifelse wont work with factors
+  ifelse(as.character(x)!="", x, NA)
+}
+
+
+#Aggregate data
+data_num <- agg_data[, c("Trees_x_sq_mi", "SelfEmployed", "MeanCommute", "Drive", "Carpool", 
+                         "IncomePerCap", "PrivateWork", "TotalPop", "Walk", "WorkAtHome", 
+                         "Unemployment", "Hosp_Adults_Avg_Yr_Num")]
+
+data_num <- data_num %>% dplyr::mutate_each(funs(empty_as_na)) #convert empty cells to NA
+data_num <- data_num %>%
+  drop_na() 
+data_num %>% summarise_all(funs(sum(is.na(.)))) #missing values
+
+library(leaps)
+formula <- (Trees_x_sq_mi ~ SelfEmployed + MeanCommute + Drive + Carpool + IncomePerCap + PrivateWork)
+subset <- regsubsets(Trees_x_sq_mi ~ ., method="exhaustive", nbest=2, data=data_num)
+cbind(summary(subset)$outmat, 
+      round(summary(subset)$rsq, 3), #r2
+      round(summary(subset)$adjr2, 3), #adjusted r2
+      round(summary(subset)$cp, 1))#Cp
+
+#Water Data
+water_data$Hosp_5.17_Avg_yr_Num
+data_num <- water_data[, c("Turbidity..NTU.", "Trees_x_sq_mi", "IncomePerCap", "Construction", "Office", "Drive")]
+
+data_num <- data_num %>% dplyr::mutate_each(funs(empty_as_na)) #convert empty cells to NA
+data_num <- data_num %>%
+  drop_na() 
+data_num %>% summarise_all(funs(sum(is.na(.)))) #missing values
+
+library(leaps)
+formula <- (Turbidity..NTU. ~ Trees_x_sq_mi + IncomePerCap + Construction + Office + Drive)
+subset <- regsubsets(formula, method="exhaustive", nbest=2, data=data_num)
+cbind(summary(subset)$outmat, 
+      round(summary(subset)$rsq, 3), #r2
+      round(summary(subset)$adjr2, 3), #adjusted r2
+      round(summary(subset)$cp, 1))#Cp
+
+#Air Data
+data_num <- air_data[, c("Daily.Max.1.hour.NO2.Concentration", "Trees_x_sq_mi", "IncomePerCap", "Construction", "Office", "Drive")]
+
+data_num <- data_num %>% dplyr::mutate_each(funs(empty_as_na)) #convert empty cells to NA
+data_num <- data_num %>%
+  drop_na() 
+data_num %>% summarise_all(funs(sum(is.na(.)))) #missing values
+
+library(leaps)
+formula <- (Daily.Max.1.hour.NO2.Concentration ~ Trees_x_sq_mi + IncomePerCap + Construction + Office + Drive)
+subset <- regsubsets(formula, method="exhaustive", nbest=2, data=data_num)
+cbind(summary(subset)$outmat, 
+      round(summary(subset)$rsq, 3), #r2
+      round(summary(subset)$adjr2, 3), #adjusted r2
+      round(summary(subset)$cp, 1))#Cp
+
+cor(agg_data$Trees_x_sq_mi, agg_data$Office, method = "pearson", use = "complete.obs")
+cor(agg_data$Trees_x_sq_mi, agg_data$SelfEmployed, method = "pearson", use = "complete.obs")
+cor(agg_data$Trees_x_sq_mi, agg_data$WorkAtHome, method = "pearson", use = "complete.obs")
 
