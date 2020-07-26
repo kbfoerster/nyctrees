@@ -1,4 +1,8 @@
 #Aggregated data set - data exploration
+#Import data
+agg_data <- read.csv(here("data","Joined_aggregate_data.csv"))
+air_data <- read.csv(here("data","Joined_aggregate_air_data.csv"))
+water_data <- read.csv(here("data","Joined_aggregate_water_data.csv"))
 
 ####Correlation####
 library(corrplot)
@@ -158,4 +162,5 @@ cbind(summary(subset)$outmat,
 cor(agg_data$Trees_x_sq_mi, agg_data$Office, method = "pearson", use = "complete.obs")
 cor(agg_data$Trees_x_sq_mi, agg_data$SelfEmployed, method = "pearson", use = "complete.obs")
 cor(agg_data$Trees_x_sq_mi, agg_data$WorkAtHome, method = "pearson", use = "complete.obs")
+
 
