@@ -11,7 +11,7 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
 - [Creating aggregate data set by NTA level](code/Merge_to_Aggregate_Data.R)
 
 ### Data Exploration
-- [Feature Importance via PCA and Boruta](code/prelim_modeling.R)
+- [Feature Importance via PCA and Boruta](code/PCA_Boruta_Exploration.ipynb)
 - [Aggregate Data Exploration: Correlations, Clustering, and Decision Trees](code/Aggregate_Data_Exploration.R)
 
 ### Data Analyses

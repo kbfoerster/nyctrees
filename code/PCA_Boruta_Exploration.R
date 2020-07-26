@@ -119,7 +119,7 @@ coli_bor = TentativeRoughFix(coli_bor)
 boruta_plot(coli_bor, main_title = "Aggregated Water Data Coliform Feature Importance", save_plot = T)
 saveRDS(coli_bor, here("models","boruta_coliform_variable_importance.rds"))
 
-### Looking at Coliform..Quanti.Tray...MPN..100mL.
+### Looking at E.Coli.Quanti.Tray...MPN..100mL.
 Ecoli_bor = Boruta(E.coli.Quanti.Tray...MPN.100mL. ~., wtr_data, doTrace=2)
 Ecoli_bor = TentativeRoughFix(Ecoli_bor)
 boruta_plot(Ecoli_bor, main_title = "Aggregated Water Data E.Coli Feature Importance", save_plot = T)
