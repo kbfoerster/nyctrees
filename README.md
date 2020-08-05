@@ -15,8 +15,8 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
 - [Aggregate Data Exploration: Correlations, Clustering, and Decision Trees](code/Aggregate_Data_Exploration.R)
 
 ### Data Analyses
+- [Unsupervised methods: K-Means Clustering](code/Clustering.ipynb)
 - Supervised methods
-- Unsupervised methods
 
 ### Data Visualizations
 
