@@ -17,6 +17,7 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
 ### Data Analyses
 - [Unsupervised methods: K-Means Clustering](code/Clustering.ipynb)
 - Supervised methods
+    - [CART Decision Tree to predict tree density](code/CART_Decision_Trees.ipynb)
 
 ### Data Visualizations
 
