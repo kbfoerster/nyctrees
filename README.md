@@ -16,10 +16,10 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
 
 ### Data Analyses
 - Unsupervised methods
-    - [K-Means Clustering](code/Clustering.ipynb)
+    - [K-Means Clustering (R)](code/Clustering.ipynb)
 - Supervised methods
-    - [CART Decision Tree to predict tree density](code/CART_Decision_Trees.ipynb)
-    - [Classifcation Models: Logistic Regression, Naive Bayes, Decision Tree, Neural Network](https://nbviewer.jupyter.org/github/kbfoerster/nyctrees/blob/14377ed96fcc7390f65f17682e21841c50a79524/code/Trees_Classification_Models.ipynb)
+    - [CART Decision Tree to predict tree density (R)](code/CART_Decision_Trees.ipynb)
+    - [Classifcation Models: Logistic Regression, Naive Bayes, Decision Tree, Neural Network (Python)](https://nbviewer.jupyter.org/github/kbfoerster/nyctrees/blob/14377ed96fcc7390f65f17682e21841c50a79524/code/Trees_Classification_Models.ipynb)
 - Data visualizations
 
 ## Data Sources
