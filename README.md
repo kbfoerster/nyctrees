@@ -15,12 +15,12 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
 - [Aggregate Data Exploration: Correlations, Clustering, and Decision Trees](code/Aggregate_Data_Exploration.R)
 
 ### Data Analyses
-- [Unsupervised methods: K-Means Clustering](code/Clustering.ipynb)
+-Unsupervised methods
+    - [K-Means Clustering](code/Clustering.ipynb)
 - Supervised methods
     - [CART Decision Tree to predict tree density](code/CART_Decision_Trees.ipynb)
     - [Classifcation Models: Logistic Regression, Naive Bayes, Decision Tree, Neural Network](https://nbviewer.jupyter.org/github/kbfoerster/nyctrees/blob/14377ed96fcc7390f65f17682e21841c50a79524/code/Trees_Classification_Models.ipynb)
-
-### Data Visualizations
+- Data visualizations
 
 ## Data Sources
 - Department of Parks and Recreation. (2016, June 2). 2005 Street Tree Census. Retrieved from https://data.cityofnewyork.us/Environment/2005-Street-Tree-Census/29bw-z7pj 
