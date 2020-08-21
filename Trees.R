@@ -751,3 +751,17 @@ epa  <- epa_nta %>% mutate(
 # Removing stations not mapped to a neighborhood
 epa = epa[!(epa$area==""),] 
 
+#### Cleaning Merged Dataset ####
+
+# Only keeping 2015 data
+data = data[data$year == 2015,]
+
+# Removing 'Stump' from healthstatus
+data = data[!data$healthstatus == "Stump",]
+
+# Converting sole 'Alive' healthstatus to 'Good' for consistency
+data$healthstatus[data$healthstatus == 'Alive'] = 'Good'
+
+# Removing columns no longer needed for analysis
+dropvar = c("nta_name","year","income","education","population","unemployment","popDensity","laborforce","poverty","diversity")
+data[,dropvar] = NULL
