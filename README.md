@@ -19,6 +19,8 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
     - [K-Means Clustering (R)](code/Clustering.ipynb)
 - Supervised methods
     - [CART Decision Tree to predict tree density (R)](code/CART_Decision_Trees.ipynb)
+    - [CART Decision Tree to predict tree health (R)](code/CART_Raw_Data.ipynb)
+    - [Random Forest to predict tree health (R)](code/RandomForest_Raw_Data.ipynb)
     - [Classifcation Models: Logistic Regression, Naive Bayes, Decision Tree, Neural Network (Python)](https://nbviewer.jupyter.org/github/kbfoerster/nyctrees/blob/14377ed96fcc7390f65f17682e21841c50a79524/code/Trees_Classification_Models.ipynb)
 - Data visualizations
 
