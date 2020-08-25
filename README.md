@@ -22,7 +22,6 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
     - [CART Decision Tree to predict tree health (R)](code/CART_Raw_Data.ipynb)
     - [Random Forest to predict tree health (R)](code/RandomForest_Raw_Data.ipynb)
     - [Classifcation Models: Logistic Regression, Naive Bayes, Decision Tree, Neural Network (Python)](https://nbviewer.jupyter.org/github/kbfoerster/nyctrees/blob/14377ed96fcc7390f65f17682e21841c50a79524/code/Trees_Classification_Models.ipynb)
-- Data visualizations
 
 ## Data Sources
 - Department of Parks and Recreation. (2016, June 2). 2005 Street Tree Census. Retrieved from https://data.cityofnewyork.us/Environment/2005-Street-Tree-Census/29bw-z7pj 
