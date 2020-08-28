@@ -18,9 +18,10 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
 
 ### Data Analyses
 
-##### General Findings
+#### General Findings
 When looking at tree density in a neightborhood area (NTA), it seems that variables like employtment, commutting information, income, and asthma hospitalizations of residents are associated with the local tree density.
 
+#### Methods
 - Unsupervised methods
     - [K-Means Clustering (R)](code/Clustering.ipynb)
 - Supervised methods
