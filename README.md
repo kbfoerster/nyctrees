@@ -28,7 +28,7 @@ When looking at tree density in a neightborhood area (NTA), it seems that variab
     - [CART Decision Tree to predict tree density (R)](code/CART_Decision_Trees.ipynb)
     - [CART Decision Tree to predict tree health (R)](code/CART_Raw_Data.ipynb)
     - [Random Forest to predict tree health (R)](code/RandomForest_Raw_Data.ipynb)
-    - [Classifcation Models: Logistic Regression, Naive Bayes, Decision Tree, Neural Network (Python)](...)
+    - [Classifcation Models: Logistic Regression, Naive Bayes, Decision Tree, Neural Network (Python)](https://github.com/kbfoerster/nyctrees/blob/master/code/Trees_Classification_Models.ipynb)
 
 ## Data Sources
 - Department of Parks and Recreation. (2016, June 2). 2005 Street Tree Census. Retrieved from https://data.cityofnewyork.us/Environment/2005-Street-Tree-Census/29bw-z7pj 
