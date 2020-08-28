@@ -1,9 +1,7 @@
 # NYC Tree Census Project
 Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015) combined with NYC census, water, air pollution, and asthma hospitalization data. 
 
-### General Findings
 
-When looking at tree density in a neightborhood area (NTA), it seems that variables like employtment, commutting information, income, and asthma hospitalizations of residents are associated with the local tree density.
 
 ## Outline
 
@@ -19,6 +17,10 @@ When looking at tree density in a neightborhood area (NTA), it seems that variab
 - [Aggregate Data Exploration](code/Aggregate_Data_Exploration.R)
 
 ### Data Analyses
+
+##### General Findings
+When looking at tree density in a neightborhood area (NTA), it seems that variables like employtment, commutting information, income, and asthma hospitalizations of residents are associated with the local tree density.
+
 - Unsupervised methods
     - [K-Means Clustering (R)](code/Clustering.ipynb)
 - Supervised methods
