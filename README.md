@@ -1,6 +1,8 @@
 # NYC Tree Census Project
 Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015) combined with NYC census, water, air pollution, and asthma hospitalization data. 
 
+
+
 ## Outline
 
 ### Data Collection and Cleaning
@@ -15,13 +17,18 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
 - [Aggregate Data Exploration](code/Aggregate_Data_Exploration.R)
 
 ### Data Analyses
+
+#### General Findings
+When looking at tree density in a neightborhood area (NTA), it seems that variables like employtment, commutting information (e.g., "transit"), income, and asthma hospitalizations of residents are associated with the local tree density and useful predictors.
+
+#### Methods
 - Unsupervised methods
     - [K-Means Clustering (R)](code/Clustering.ipynb)
 - Supervised methods
     - [CART Decision Tree to predict tree density (R)](code/CART_Decision_Trees.ipynb)
     - [CART Decision Tree to predict tree health (R)](code/CART_Raw_Data.ipynb)
     - [Random Forest to predict tree health (R)](code/RandomForest_Raw_Data.ipynb)
-    - [Classifcation Models: Logistic Regression, Naive Bayes, Decision Tree, Neural Network (Python)](https://nbviewer.jupyter.org/github/kbfoerster/nyctrees/blob/14377ed96fcc7390f65f17682e21841c50a79524/code/Trees_Classification_Models.ipynb)
+    - [Classifcation Models: Logistic Regression, Naive Bayes, Decision Tree, Neural Network (Python)](https://nbviewer.jupyter.org/github/kbfoerster/nyctrees/blob/master/code/Trees_Classification_Models.ipynb)
 
 ## Data Sources
 - Department of Parks and Recreation. (2016, June 2). 2005 Street Tree Census. Retrieved from https://data.cityofnewyork.us/Environment/2005-Street-Tree-Census/29bw-z7pj 
