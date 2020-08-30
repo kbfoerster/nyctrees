@@ -30,3 +30,4 @@ Data collection, cleaning, exploration, and analysis of NYC Tree Censuses (2015)
 - Department of Environmental Protection (DEP). (2020) Drinking Water Quality Distribution Monitoring Data. Retieved from https://data.cityofnewyork.us/Environment/Drinking-Water-Quality-Distribution-Monitoring-Dat/bkwf-xfky
 - Department of Health and Mental Hygiene (DOHMH. (2020) NYCCAS Air Pollution Rasters. Retrieved from https://data.cityofnewyork.us/Environment/NYCCAS-Air-Pollution-Rasters/q68s-8qxv
 - NYC Department of City Planning. (2010) Boundaries of Neighborhood Tabulation Area (NTA). Retrieved from https://data.cityofnewyork.us/City-Government/Neighborhood-Tabulation-Areas-NTA-/cpf4-rkhq
+- Kaggle. (2017, August 4). New York City Census Data. Retrieved from https://www.kaggle.com/muonneutrino/new-york-city-census-data/metadata
